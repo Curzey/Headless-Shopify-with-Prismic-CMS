@@ -1,57 +1,66 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+
+    <section id="prismic-content">
+      <prismic-rich-text v-if="fields.title" :field="fields.title" wrapper="h2"/>
+      <prismic-rich-text v-if="fields.welcome_text" :field="fields.welcome_text" wrapper="p"/>
+      <prismic-image v-if="fields.welcome_image" :field="fields.welcome_image" />
+    </section>
+
+    <section id="shopify-products">
+      <prismic-rich-text v-if="fields.products_title" :field="fields.products_title" wrapper="h2"/>
+      <article v-if="products.length > 1" v-for="product in products">
+        {{ product.title }} <br>
+      </article>
+    </section>
+
   </div>
 </template>
 
 <script>
+import client from '@/shopify/api.js';
+
 export default {
   name: 'HelloWorld',
-  props: {
-    msg: String
+
+  data() {
+    return {
+      fields: {
+        title: null,
+        welcome_text: null,
+        welcome_image: null,
+        products_title: null
+      },
+      products: []
+    }
+  },
+
+  methods: {
+    async getContent() {
+     const data = await this.$prismic.client.getSingle('homepage');
+     this.fields.title = data.data.title;
+     this.fields.welcome_text = data.data.welcome_text;
+     this.fields.welcome_image = data.data.welcome_image;
+     this.fields.products_title = data.data.products_title;
+    },
+
+    async getProducts() {
+      await client.product.fetchAll().then((products) => {
+        console.log(products);
+        this.products = products;
+      });
+    }
+  },
+
+  async created() {
+    await this.getContent();
+    await this.getProducts();
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+  img {
+    max-width: 100px;
+  }
 </style>

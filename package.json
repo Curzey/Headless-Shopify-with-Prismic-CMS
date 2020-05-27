@@ -8,6 +8,11 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "dotenv": "^8.2.0",
+    "prismic-dom": "^2.2.3",
+    "prismic-javascript": "^2.7.1",
+    "prismic-vue": "^2.0.1",
+    "shopify-buy": "^2.10.0",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0"
   },
